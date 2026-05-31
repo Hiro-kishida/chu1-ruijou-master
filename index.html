@@ -1,606 +1,710 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>中1数学｜累乗マスター ver0.2</title>
-  <style>
-    :root {
-      --bg: #f3f7fb;
-      --card: #ffffff;
-      --ink: #132338;
-      --sub: #65748a;
-      --navy: #203a64;
-      --accent: #18a487;
-      --accent-soft: #e7f8f3;
-      --soft-blue: #eef3fb;
-      --line: #dce5f0;
-      --triangle: #ef993d;
-      --triangle-soft: #fff4e8;
-      --shadow: 0 18px 50px rgba(29, 48, 78, .10);
-      --radius: 24px;
-    }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: radial-gradient(circle at 15% 7%, #e4eeff 0, transparent 34%),
-                  radial-gradient(circle at 90% 8%, #daf6ef 0, transparent 28%), var(--bg);
-      color: var(--ink);
-      font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
-      display: flex;
-      justify-content: center;
-      padding: clamp(9px, 2.5vw, 25px);
-    }
-    button { font: inherit; cursor: pointer; border: 0; }
-    sup {
-      display: inline-block;
-      position: relative;
-      top: -.62em;
-      font-size: .56em;
-      font-weight: 800;
-      line-height: 1;
-      vertical-align: baseline;
-      margin-left: .04em;
-    }
-    .app { width: min(100%, 920px); display: flex; flex-direction: column; gap: 12px; }
-    .topbar {
-      min-height: 61px; background: rgba(255,255,255,.84); backdrop-filter: blur(12px);
-      border: 1px solid rgba(219,227,239,.9); border-radius: 21px;
-      padding: 10px 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    }
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .brand-mark {
-      width: 41px; height: 41px; flex-shrink: 0; border-radius: 13px; background: var(--navy); color: white;
-      display: flex; justify-content: center; align-items: center; font-size: 21px; font-weight: 850;
-    }
-    .brand-mark sup { top: -.43em; font-size: .51em; }
-    .brand h1 { margin: 0; font-size: clamp(16px, 3.8vw, 20px); letter-spacing: .03em; }
-    .brand p { margin: 2px 0 0; color: var(--sub); font-size: 11px; font-weight: 600; }
-    .home-btn {
-      display: none; padding: 9px 11px; border-radius: 13px; background: var(--soft-blue);
-      color: var(--navy); font-size: 13px; font-weight: 800; white-space: nowrap;
-    }
-    .home-btn.show { display: block; }
-
-    .panel { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); }
-    .welcome { padding: clamp(20px, 4vw, 33px); }
-    .welcome.hidden { display: none; }
-    .welcome h2 { margin: 0 0 8px; font-size: clamp(23px, 5vw, 31px); }
-    .intro { color: var(--sub); font-weight: 600; line-height: 1.7; margin: 0 0 19px; font-size: 14px; }
-    .five-rule {
-      display: inline-flex; align-items: center; gap: 8px; background: var(--accent-soft); color: #196454;
-      padding: 9px 13px; margin-bottom: 20px; border-radius: 14px; font-size: 14px; font-weight: 800;
-    }
-    .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; }
-    .mode-card {
-      text-align: left; background: #f7f9fd; border: 2px solid transparent; padding: 16px 14px;
-      border-radius: 18px; transition: .15s; min-height: 154px;
-    }
-    .mode-card:hover, .mode-card:focus-visible { border-color: #bfd3ee; background: white; transform: translateY(-2px); }
-    .level {
-      display: inline-block; padding: 4px 9px; border-radius: 20px; background: #e7eef9;
-      color: var(--navy); font-size: 12px; font-weight: 850; margin-bottom: 10px;
-    }
-    .mode-card strong { display: block; font-size: 17px; margin-bottom: 9px; }
-    .mode-example { font-size: 26px; font-weight: 760; color: var(--navy); margin-bottom: 8px; }
-    .mode-card small { display: block; color: var(--sub); font-weight: 600; line-height: 1.45; }
-
-    .practice { display: none; gap: 12px; }
-    .practice.active { display: grid; grid-template-columns: minmax(340px, 1fr) 325px; }
-    .question-card {
-      padding: clamp(17px, 3vw, 27px); min-height: 545px; display: flex; flex-direction: column;
-    }
-    .status { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-    .stage-pill {
-      background: var(--soft-blue); color: var(--navy); padding: 8px 11px; border-radius: 100px;
-      font-size: 13px; font-weight: 800;
-    }
-    .counter {
-      background: #f4f7fb; color: var(--sub); padding: 7px 11px; border-radius: 11px;
-      font-size: 13px; font-weight: 800;
-    }
-    .counter b { color: var(--ink); font-size: 16px; }
-    .prompt { text-align: center; color: var(--sub); font-size: 14px; font-weight: 750; margin-top: 39px; }
-    .formula {
-      min-height: 91px; margin: 12px 0 17px; display: flex; align-items: baseline; justify-content: center;
-      white-space: nowrap; font-size: clamp(46px, 8vw, 68px); font-weight: 780; letter-spacing: .02em;
-    }
-    .formula sup { top: -.7em; font-size: .54em; margin-right: .05em; }
-    .answer-box {
-      min-height: 69px; width: min(330px, 100%); margin-inline: auto; border: 2px solid var(--line);
-      border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: 9px;
-      background: #fbfcff; font-size: 33px; font-weight: 760; color: var(--navy);
-    }
-    .answer-box .label { font-size: 13px; color: var(--sub); align-self: flex-start; margin-top: 12px; }
-    .answer-box.empty .typed::after { content: "?"; color: #b4c0d2; }
-    .answer-box.correct { background: #effaf6; border-color: #83d3bd; color: #08785f; }
-    .answer-box.checked { background: #f6f8fc; border-color: #cdd9e7; color: var(--navy); }
-    .flash {
-      min-height: 55px; margin-top: 17px; display: grid; place-items: center; text-align: center;
-      font-size: 19px; font-weight: 850; color: transparent; transition: .15s;
-    }
-    .flash.good { color: #06765d; background: var(--accent-soft); border-radius: 15px; }
-    .flash.recorded { color: #53657c; background: #f3f6fb; border-radius: 15px; font-size: 16px; }
-    .mini-note { margin-top: auto; color: var(--sub); text-align: center; font-size: 12px; font-weight: 600; padding-top: 12px; }
-
-    .calculator {
-      background: var(--navy); border-radius: var(--radius); box-shadow: var(--shadow); padding: 15px;
-      display: flex; flex-direction: column; gap: 11px;
-    }
-    .calc-title { color: rgba(255,255,255,.78); padding: 2px 2px 6px; font-size: 13px; font-weight: 750; }
-    .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .key {
-      min-height: 68px; border-radius: 16px; background: rgba(255,255,255,.10); color: white;
-      font-size: 29px; font-weight: 680; box-shadow: inset 0 1px 0 rgba(255,255,255,.13);
-    }
-    .key:active { transform: scale(.97); background: rgba(255,255,255,.17); }
-    .key.tool { font-size: 18px; font-weight: 750; background: rgba(255,255,255,.16); }
-    .key.sign { font-size: 23px; }
-    .submit {
-      min-height: 66px; border-radius: 16px; background: var(--accent); color: white;
-      font-size: 20px; font-weight: 850; letter-spacing: .05em;
-    }
-    .submit:active { transform: scale(.98); }
-    .submit:disabled, .key:disabled { opacity: .45; cursor: default; }
-    .keyhelp { color: rgba(255,255,255,.61); text-align: center; font-size: 11px; }
-
-    .result { display: none; padding: clamp(18px, 4vw, 30px); }
-    .result.show { display: block; }
-    .result h2 { margin: 0; text-align: center; font-size: clamp(24px, 5vw, 30px); }
-    .result-sub { margin: 8px 0 18px; text-align: center; color: var(--sub); font-weight: 650; }
-    .remaining {
-      width: fit-content; margin: 0 auto 17px; padding: 9px 15px; border-radius: 99px;
-      color: #975722; background: var(--triangle-soft); font-size: 15px; font-weight: 850;
-    }
-    .review-list { display: flex; flex-direction: column; gap: 9px; max-width: 540px; margin: 0 auto; }
-    .review-item {
-      display: grid; grid-template-columns: 42px 1fr; align-items: center; gap: 8px; padding: 12px 13px;
-      background: #fbfcff; border: 1px solid #e7edf5; border-radius: 16px;
-    }
-    .triangle {
-      width: 36px; height: 36px; display: grid; place-items: center; background: var(--triangle-soft);
-      color: var(--triangle); font-size: 20px; font-weight: 900; border-radius: 11px;
-    }
-    .review-formula { font-size: clamp(23px, 5.6vw, 29px); font-weight: 750; }
-    .review-answer { color: var(--sub); margin-top: 4px; font-size: 13px; font-weight: 700; }
-    .actions { display: flex; justify-content: center; gap: 9px; flex-wrap: wrap; margin-top: 21px; }
-    .action {
-      min-height: 52px; padding: 13px 17px; border-radius: 15px; font-weight: 850; font-size: 15px;
-    }
-    .retry { background: var(--accent); color: white; }
-    .secondary { background: var(--soft-blue); color: var(--navy); }
-    .record-note {
-      margin: 20px auto 0; max-width: 540px; border-radius: 14px; background: #f3f6fb; padding: 11px 13px;
-      color: #647488; font-size: 12px; font-weight: 650; line-height: 1.55;
-    }
-
-    .celebration {
-      position: fixed; inset: 0; z-index: 20; display: none; place-items: center;
-      background: rgba(17,31,54,.23); padding: 18px;
-    }
-    .celebration.show { display: grid; }
-    .confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-    .confetti i {
-      position: absolute; top: -24px; width: 11px; height: 20px; border-radius: 3px;
-      animation: fall 1.9s ease-out forwards;
-    }
-    .congrats {
-      position: relative; z-index: 1; width: min(390px, 94vw); padding: 30px 18px 22px; text-align: center;
-      background: white; border-radius: 27px; box-shadow: 0 23px 65px rgba(16,27,48,.28);
-      animation: pop .37s cubic-bezier(.2,.9,.2,1.22);
-    }
-    .stars { font-size: 42px; }
-    .congrats h2 { color: var(--navy); font-size: 29px; margin: 7px 0 7px; }
-    .congrats p { color: var(--sub); font-size: 16px; font-weight: 750; line-height: 1.55; margin: 0 0 19px; }
-    .celebrate-btn { background: var(--accent); color: white; min-height: 51px; padding: 12px 19px; border-radius: 15px; font-weight: 850; }
-    @keyframes pop { from { transform: scale(.63); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    @keyframes fall { to { transform: translateY(110vh) rotate(560deg); opacity: .15; } }
-
-    @media (max-width: 760px) {
-      .modes { grid-template-columns: 1fr; }
-      .mode-card { min-height: unset; }
-      .practice.active { display: flex; flex-direction: column; }
-      .question-card { min-height: 423px; }
-      .prompt { margin-top: 28px; }
-      .calculator { padding: 12px; }
-      .key { min-height: 57px; }
-      .submit { min-height: 58px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>中1数学｜累乗マスター ver0.4</title>
+<style>
+:root{
+  --bg:#f3f7fb; --card:#fff; --ink:#132338; --sub:#66758a; --navy:#213b66;
+  --accent:#18a487; --accent-soft:#e4f7f1; --soft-blue:#eef3fb;
+  --line:#dbe4f0; --triangle:#e58b32; --triangle-soft:#fff3e5;
+  --shadow:0 18px 50px rgba(29,48,78,.10); --radius:24px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0; min-height:100vh; display:flex; justify-content:center;
+  padding:clamp(9px,2.4vw,26px); color:var(--ink);
+  font-family:"Hiragino Sans","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  background:radial-gradient(circle at 15% 8%,#e5efff 0,transparent 34%),
+             radial-gradient(circle at 90% 10%,#daf6ee 0,transparent 28%),var(--bg);
+}
+button{font:inherit;border:0;cursor:pointer}
+button:focus-visible{outline:3px solid rgba(24,164,135,.35);outline-offset:2px}
+sup{
+  display:inline-block; position:relative; top:-.62em; font-size:.56em; line-height:1;
+  font-weight:800; vertical-align:baseline; margin-left:.04em;
+}
+.app{width:min(100%,920px);display:flex;flex-direction:column;gap:12px}
+.topbar{
+  min-height:62px; display:flex; justify-content:space-between; align-items:center; gap:10px;
+  padding:10px 13px; border-radius:21px; background:rgba(255,255,255,.86);
+  border:1px solid rgba(219,227,239,.9); backdrop-filter:blur(12px);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{
+  width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  background:var(--navy);color:#fff;font-size:21px;font-weight:850;flex-shrink:0
+}
+.mark sup{font-size:.52em;top:-.44em}
+.brand h1{font-size:clamp(16px,3.8vw,20px);margin:0;letter-spacing:.03em}
+.brand p{margin:2px 0 0;color:var(--sub);font-size:11px;font-weight:650}
+.home{
+  display:none;padding:10px 12px;border-radius:13px;background:var(--soft-blue);color:var(--navy);
+  white-space:nowrap;font-size:13px;font-weight:800
+}
+.home.show{display:block}
+.panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)}
+.welcome{padding:clamp(20px,4vw,34px)}
+.welcome.hidden{display:none}
+.welcome h2{margin:0 0 8px;font-size:clamp(23px,5vw,31px)}
+.intro{margin:0 0 18px;color:var(--sub);font-size:14px;line-height:1.7;font-weight:600}
+.five{
+  display:inline-flex;align-items:center;gap:7px;background:var(--accent-soft);color:#1b6253;
+  padding:9px 13px;margin-bottom:19px;border-radius:14px;font-size:14px;font-weight:850
+}
+.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mode{
+  min-height:158px;padding:15px 13px;text-align:left;border:2px solid transparent;border-radius:18px;
+  background:#f7f9fd;transition:.16s
+}
+.mode:hover,.mode:focus-visible{border-color:#c5d7ee;background:#fff;transform:translateY(-2px)}
+.tag{
+  display:inline-block;margin-bottom:10px;padding:4px 8px;border-radius:18px;background:#e7eef9;
+  color:var(--navy);font-size:11px;font-weight:850
+}
+.mode.mixed .tag{background:#e5f7f1;color:#126a56}
+.mode strong{display:block;font-size:15px;margin-bottom:8px}
+.sample{color:var(--navy);font-size:23px;font-weight:780;margin-bottom:7px;white-space:nowrap}
+.mode small{display:block;color:var(--sub);font-size:12px;line-height:1.42;font-weight:600}
+.practice{display:none;gap:12px}
+.practice.active{display:grid;grid-template-columns:minmax(340px,1fr) 325px}
+.question{
+  min-height:525px;padding:clamp(17px,3vw,28px);display:flex;flex-direction:column
+}
+.status{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.stage-pill{
+  max-width:72%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  background:var(--soft-blue);color:var(--navy);padding:8px 11px;border-radius:99px;
+  font-size:13px;font-weight:800
+}
+.count{background:#f4f7fb;color:var(--sub);padding:7px 11px;border-radius:11px;font-size:13px;font-weight:850}
+.count b{font-size:16px;color:var(--ink)}
+.prompt{text-align:center;color:var(--sub);font-weight:750;font-size:14px;margin-top:38px}
+.formula{
+  min-height:93px;display:flex;align-items:baseline;justify-content:center;white-space:nowrap;
+  margin:12px 0 16px;font-size:clamp(43px,8vw,67px);font-weight:780;letter-spacing:.02em
+}
+.formula sup{top:-.7em;font-size:.54em;margin-right:.05em}
+.answer{
+  min-height:69px;width:min(330px,100%);margin:0 auto;display:flex;align-items:center;justify-content:center;
+  gap:9px;border:2px solid var(--line);border-radius:18px;background:#fbfcff;color:var(--navy);
+  font-size:33px;font-weight:760
+}
+.answer .label{font-size:13px;color:var(--sub);align-self:flex-start;margin-top:12px}
+.answer.empty .typed::after{content:"?";color:#b4c0d2}
+.answer.good{border-color:#83d3bd;background:#effaf6;color:#06765d}
+.answer.recorded{border-color:#d6deeb;background:#f6f8fc;color:var(--navy)}
+.flash{
+  min-height:54px;margin-top:17px;display:grid;place-items:center;text-align:center;
+  border-radius:15px;color:transparent;font-size:19px;font-weight:850
+}
+.flash.good{color:#06765d;background:var(--accent-soft)}
+.flash.recorded{color:#54667e;background:#f3f6fb;font-size:16px}
+.small-note{margin-top:auto;padding-top:11px;text-align:center;color:var(--sub);font-size:12px;font-weight:650}
+.calculator{
+  padding:14px;border-radius:var(--radius);background:var(--navy);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:10px
+}
+.calc-title{padding:3px 2px 6px;color:rgba(255,255,255,.78);font-size:13px;font-weight:750}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.key{
+  min-height:67px;border-radius:16px;background:rgba(255,255,255,.10);color:#fff;
+  font-size:29px;font-weight:680;box-shadow:inset 0 1px 0 rgba(255,255,255,.13)
+}
+.key:active{transform:scale(.97);background:rgba(255,255,255,.18)}
+.key.tool{background:rgba(255,255,255,.16);font-size:18px;font-weight:750}
+.key.sign{font-size:23px}
+.submit{
+  min-height:65px;border-radius:16px;background:var(--accent);color:#fff;
+  font-size:20px;font-weight:850;letter-spacing:.05em
+}
+.submit:active{transform:scale(.98)}
+.submit:disabled,.key:disabled{opacity:.45;cursor:default}
+.keyhelp{text-align:center;color:rgba(255,255,255,.60);font-size:11px}
+.results{display:none;padding:clamp(19px,4vw,30px)}
+.results.show{display:block}
+.results h2{text-align:center;margin:0;font-size:clamp(23px,5vw,30px)}
+.result-sub{text-align:center;color:var(--sub);font-weight:650;margin:8px 0 18px}
+.remaining{
+  width:fit-content;margin:0 auto 17px;padding:9px 15px;border-radius:99px;
+  background:var(--triangle-soft);color:#935520;font-size:15px;font-weight:850
+}
+.list{max-width:545px;margin:0 auto;display:flex;flex-direction:column;gap:9px}
+.item{
+  display:grid;grid-template-columns:42px 1fr;align-items:center;gap:8px;
+  padding:12px 13px;border:1px solid #e7edf5;border-radius:16px;background:#fbfcff
+}
+.triangle{
+  width:36px;height:36px;display:grid;place-items:center;border-radius:11px;
+  background:var(--triangle-soft);color:var(--triangle);font-size:20px;font-weight:900
+}
+.item-formula{font-size:clamp(23px,5.8vw,29px);font-weight:760}
+.item-answer{margin-top:4px;color:var(--sub);font-size:13px;font-weight:700}
+.actions{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin-top:20px}
+.action{min-height:52px;padding:13px 17px;border-radius:15px;font-size:15px;font-weight:850}
+.retry{background:var(--accent);color:#fff}
+.secondary{background:var(--soft-blue);color:var(--navy)}
+.future{
+  max-width:545px;margin:19px auto 0;padding:11px 13px;border-radius:14px;background:#f3f6fb;
+  color:#65758b;font-size:12px;line-height:1.55;font-weight:650
+}
+.celebration{
+  display:none;position:fixed;inset:0;z-index:30;place-items:center;padding:18px;
+  background:rgba(17,31,54,.22)
+}
+.celebration.show{display:grid}
+.confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.confetti i{
+  position:absolute;top:-24px;width:11px;height:20px;border-radius:3px;
+  animation:fall 1.95s ease-out forwards
+}
+.congrats{
+  position:relative;z-index:1;width:min(390px,94vw);padding:30px 18px 22px;
+  text-align:center;background:#fff;border-radius:27px;box-shadow:0 23px 65px rgba(16,27,48,.28);
+  animation:pop .37s cubic-bezier(.2,.9,.2,1.22)
+}
+.stars{font-size:42px}.congrats h2{margin:7px 0;color:var(--navy);font-size:29px}
+.congrats p{margin:0 0 19px;color:var(--sub);font-size:16px;line-height:1.55;font-weight:750}
+.celebrate-btn{min-height:51px;padding:12px 19px;border-radius:15px;background:var(--accent);color:#fff;font-weight:850}
+@keyframes pop{from{transform:scale(.64);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes fall{to{transform:translateY(110vh) rotate(560deg);opacity:.15}}
+@media(max-width:850px){.modes{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){
+  .practice.active{display:flex;flex-direction:column}
+  .question{min-height:420px}
+  .prompt{margin-top:27px}
+  .calculator{padding:12px}
+  .key{min-height:57px}
+  .submit{min-height:58px}
+}
+@media(max-width:490px){
+  body{padding:8px}
+  .modes{grid-template-columns:1fr}
+  .mode{min-height:unset}
+}
+</style>
 </head>
 <body>
-  <main class="app" aria-label="累乗マスター">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-mark" aria-hidden="true">x<sup>2</sup></div>
-        <div>
-          <h1>中1数学　累乗マスター</h1>
-          <p>5問チャレンジ ver0.2</p>
-        </div>
-      </div>
-      <button class="home-btn" id="homeBtn" type="button">モード選択</button>
-    </header>
-
-    <section class="welcome panel" id="welcome">
-      <h2>今日は、どの練習をする？</h2>
-      <p class="intro">答えを電卓のように入力します。まずは5問だけ、取り組んでみよう。</p>
-      <div class="five-rule">🌱 1回のチャレンジは 5問</div>
-      <div class="modes">
-        <button class="mode-card" data-mode="positive" type="button">
-          <span class="level">ステージ 1</span>
-          <strong>正の数の累乗</strong>
-          <div class="mode-example">3<sup>3</sup> = ?</div>
-          <small>指数は「何回かけるか」。</small>
-        </button>
-        <button class="mode-card" data-mode="negativeParen" type="button">
-          <span class="level">ステージ 2</span>
-          <strong>負の数・カッコあり</strong>
-          <div class="mode-example">(−2)<sup>3</sup> = ?</div>
-          <small>−も一緒にかける。</small>
-        </button>
-        <button class="mode-card" data-mode="comparison" type="button">
-          <span class="level">ステージ 3</span>
-          <strong>カッコあり／なし</strong>
-          <div class="mode-example">−2<sup>2</sup> = ?</div>
-          <small>よく似た式の違いを見る。</small>
-        </button>
-      </div>
-    </section>
-
-    <section class="practice" id="practice" aria-live="polite">
-      <div class="question-card panel">
-        <div class="status">
-          <div class="stage-pill" id="stagePill"></div>
-          <div class="counter"><b id="questionNo">1</b> / <span id="questionTotal">5</span> 問</div>
-        </div>
-        <div class="prompt" id="prompt">答えを入力しよう</div>
-        <div class="formula" id="formula"></div>
-        <div class="answer-box empty" id="answerBox">
-          <span class="label">答え</span><span class="typed" id="typed"></span>
-        </div>
-        <div class="flash" id="flash">.</div>
-        <div class="mini-note">問題は1問ずつ表示されます</div>
-      </div>
-      <aside class="calculator" aria-label="答え入力用電卓">
-        <div class="calc-title">電卓ボタンで答えを入力</div>
-        <div class="keys" id="keys">
-          <button class="key" data-key="7" type="button">7</button>
-          <button class="key" data-key="8" type="button">8</button>
-          <button class="key" data-key="9" type="button">9</button>
-          <button class="key" data-key="4" type="button">4</button>
-          <button class="key" data-key="5" type="button">5</button>
-          <button class="key" data-key="6" type="button">6</button>
-          <button class="key" data-key="1" type="button">1</button>
-          <button class="key" data-key="2" type="button">2</button>
-          <button class="key" data-key="3" type="button">3</button>
-          <button class="key tool sign" data-key="sign" type="button">±</button>
-          <button class="key" data-key="0" type="button">0</button>
-          <button class="key tool" data-key="back" type="button">⌫</button>
-          <button class="key tool" data-key="clear" type="button">消す</button>
-          <button class="key tool sign" data-key="sign" type="button">−</button>
-          <button class="key tool" data-key="back" type="button">一字消す</button>
-        </div>
-        <button class="submit" id="submitBtn" type="button">決定</button>
-        <div class="keyhelp">キーボードの数字・−・Enterでも入力できます</div>
-      </aside>
-    </section>
-
-    <section class="result panel" id="result" aria-live="polite">
-      <h2>もう一度チャレンジする問題</h2>
-      <p class="result-sub" id="resultSub"></p>
-      <div class="remaining" id="remaining"></div>
-      <div class="review-list" id="reviewList"></div>
-      <div class="actions">
-        <button class="action retry" id="retryButton" type="button">△の問題にもう一度チャレンジ</button>
-        <button class="action secondary" id="backButton" type="button">モード選択へ</button>
-      </div>
-      <div class="record-note">正答はこの画面には表示せず、すぐにもう一度取り組める形にしています。今後、先生用の記録には入力結果と正答を保存できます。</div>
-    </section>
-  </main>
-
-  <div class="celebration" id="celebration" aria-hidden="true">
-    <div class="confetti" id="confetti"></div>
-    <div class="congrats">
-      <div class="stars">🎉✨🎉</div>
-      <h2 id="celebrateTitle">全問クリア！</h2>
-      <p id="celebrateText">5問ぜんぶできた！<br>すごい！！</p>
-      <button class="celebrate-btn" id="celebrateClose" type="button">もう一度やる</button>
+<main class="app" aria-label="累乗マスター">
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">x<sup>2</sup></div>
+      <div><h1>中1数学　累乗マスター</h1><p>5問チャレンジ ver0.4</p></div>
     </div>
+    <button class="home" id="homeButton" type="button">モード選択</button>
+  </header>
+
+  <section class="welcome panel" id="welcome">
+    <h2>今日は、どの練習をする？</h2>
+    <p class="intro">答えを電卓のように入力します。まずは5問だけ、取り組んでみよう。</p>
+    <div class="five">🌱 1回のチャレンジは 5問</div>
+    <div class="modes">
+      <button class="mode" data-stage="positive" type="button">
+        <span class="tag">ステージ 1</span><strong>正の数の累乗</strong>
+        <div class="sample">3<sup>3</sup> = ?</div><small>指数は「何回かけるか」。</small>
+      </button>
+      <button class="mode" data-stage="negativeParen" type="button">
+        <span class="tag">ステージ 2</span><strong>負の数・カッコあり</strong>
+        <div class="sample">(−2)<sup>3</sup> = ?</div><small>−も一緒にかける。</small>
+      </button>
+      <button class="mode" data-stage="comparison" type="button">
+        <span class="tag">ステージ 3</span><strong>カッコあり／なし</strong>
+        <div class="sample">−2<sup>2</sup> = ?</div><small>2乗で違いを見る。</small>
+      </button>
+      <button class="mode mixed" data-stage="mixed" type="button">
+        <span class="tag">ステージ 4　NEW</span><strong>累乗＋加法・減法</strong>
+        <div class="sample">(−2)<sup>2</sup> / ＋7 − 23</div><small>累乗と、7を含む加法減法を混ぜる。</small>
+      </button>
+    </div>
+  </section>
+
+  <section class="practice" id="practice" aria-live="polite">
+    <div class="question panel">
+      <div class="status">
+        <div class="stage-pill" id="stagePill"></div>
+        <div class="count"><b id="questionNumber">1</b> / <span id="questionTotal">5</span> 問</div>
+      </div>
+      <div class="prompt" id="prompt">答えを入力しよう</div>
+      <div class="formula" id="formula"></div>
+      <div class="answer empty" id="answerBox">
+        <span class="label">答え</span><span class="typed" id="typed"></span>
+      </div>
+      <div class="flash" id="flash">.</div>
+      <div class="small-note">問題は1問ずつ表示されます</div>
+    </div>
+
+    <aside class="calculator" aria-label="答え入力用電卓">
+      <div class="calc-title">電卓ボタンで答えを入力</div>
+      <div class="keys" id="keys">
+        <button class="key" data-key="7" type="button">7</button>
+        <button class="key" data-key="8" type="button">8</button>
+        <button class="key" data-key="9" type="button">9</button>
+        <button class="key" data-key="4" type="button">4</button>
+        <button class="key" data-key="5" type="button">5</button>
+        <button class="key" data-key="6" type="button">6</button>
+        <button class="key" data-key="1" type="button">1</button>
+        <button class="key" data-key="2" type="button">2</button>
+        <button class="key" data-key="3" type="button">3</button>
+        <button class="key tool sign" data-key="sign" type="button">±</button>
+        <button class="key" data-key="0" type="button">0</button>
+        <button class="key tool" data-key="back" type="button">⌫</button>
+        <button class="key tool" data-key="clear" type="button">消す</button>
+        <button class="key tool sign" data-key="sign" type="button">−</button>
+        <button class="key tool" data-key="back" type="button">一字消す</button>
+      </div>
+      <button class="submit" id="submitButton" type="button">決定</button>
+      <div class="keyhelp">キーボードの数字・−・Enterでも入力できます</div>
+    </aside>
+  </section>
+
+  <section class="results panel" id="results" aria-live="polite">
+    <h2>もう一度チャレンジする問題</h2>
+    <p class="result-sub" id="resultSub"></p>
+    <div class="remaining" id="remaining"></div>
+    <div class="list" id="reviewList"></div>
+    <div class="actions">
+      <button class="action retry" id="retryButton" type="button">△の問題にもう一度チャレンジ</button>
+      <button class="action secondary" id="backButton" type="button">モード選択へ</button>
+    </div>
+    <div class="future">正しい答えはこの画面には表示せず、すぐにもう一度取り組める形にしています。将来の記録連携では、先生側に問題・入力した答え・正答・初回／再挑戦・問題タイプを保存できます。</div>
+  </section>
+</main>
+
+<div class="celebration" id="celebration" aria-hidden="true">
+  <div class="confetti" id="confetti"></div>
+  <div class="congrats">
+    <div class="stars">🎉✨🎉</div>
+    <h2 id="celebrateTitle">全問クリア！</h2>
+    <p id="celebrateText">5問ぜんぶできた！<br>すごい！！</p>
+    <button class="celebrate-btn" id="celebrateClose" type="button">もう一度やる</button>
   </div>
+</div>
 
 <script>
 (() => {
-  'use strict';
+  "use strict";
+
   const STAGES = {
-    positive: { label: 'ステージ1｜正の数の累乗', build: makePositive },
-    negativeParen: { label: 'ステージ2｜負の数・カッコあり', build: makeNegativeParen },
-    comparison: { label: 'ステージ3｜カッコあり／なし', build: makeComparison }
+    positive: {
+      label: "ステージ1｜正の数の累乗",
+      createBatch: () => uniqueBatch(makePositivePower, 5)
+    },
+    negativeParen: {
+      label: "ステージ2｜負の数・カッコあり",
+      createBatch: () => uniqueBatch(makeNegativeParenPower, 5)
+    },
+    comparison: {
+      label: "ステージ3｜カッコあり／なし",
+      createBatch: () => uniqueBatch(makeComparisonPower, 5)
+    },
+    mixed: {
+      label: "ステージ4｜累乗＋加法・減法",
+      createBatch: makeMixedBatch
+    }
   };
+
   const state = {
-    mode: null,
-    phase: 'first',
-    round: 0,
+    stage: null,
+    phase: "first",
     batch: [],
     index: 0,
-    input: '',
+    input: "",
     locked: false,
     attempts: [],
-    failedAttempts: [],
+    reviewProblems: [],
     audioContext: null
   };
-  const $ = id => document.getElementById(id);
-  const welcome = $('welcome');
-  const practice = $('practice');
-  const result = $('result');
-  const formula = $('formula');
-  const typed = $('typed');
-  const answerBox = $('answerBox');
-  const flash = $('flash');
 
-  document.querySelectorAll('.mode-card').forEach(button => {
-    button.addEventListener('click', () => startStage(button.dataset.mode));
+  const el = id => document.getElementById(id);
+  const welcome = el("welcome");
+  const practice = el("practice");
+  const results = el("results");
+  const formula = el("formula");
+  const answerBox = el("answerBox");
+  const typed = el("typed");
+  const flash = el("flash");
+
+  document.querySelectorAll("[data-stage]").forEach(button => {
+    button.addEventListener("click", () => startStage(button.dataset.stage));
   });
-  $('homeBtn').addEventListener('click', goHome);
-  $('backButton').addEventListener('click', goHome);
-  $('retryButton').addEventListener('click', retryFailed);
-  $('celebrateClose').addEventListener('click', restartCurrentStage);
-  $('keys').addEventListener('click', event => {
-    const key = event.target.closest('[data-key]');
-    if (key) pressKey(key.dataset.key);
+  el("homeButton").addEventListener("click", goHome);
+  el("backButton").addEventListener("click", goHome);
+  el("retryButton").addEventListener("click", retryReviewProblems);
+  el("celebrateClose").addEventListener("click", restartCurrentStage);
+  el("submitButton").addEventListener("click", submitAnswer);
+  el("keys").addEventListener("click", event => {
+    const button = event.target.closest("[data-key]");
+    if (button) pressKey(button.dataset.key);
   });
-  $('submitBtn').addEventListener('click', submitAnswer);
-  window.addEventListener('keydown', event => {
-    if (!state.mode || !practice.classList.contains('active') || state.locked) return;
+
+  window.addEventListener("keydown", event => {
+    if (!state.stage || !practice.classList.contains("active") || state.locked) return;
     if (/^[0-9]$/.test(event.key)) pressKey(event.key);
-    if (event.key === '-' || event.key === 'Subtract') pressKey('sign');
-    if (event.key === 'Backspace') pressKey('back');
-    if (event.key === 'Escape') pressKey('clear');
-    if (event.key === 'Enter') submitAnswer();
+    if (event.key === "-" || event.key === "Subtract") pressKey("sign");
+    if (event.key === "Backspace") pressKey("back");
+    if (event.key === "Escape") pressKey("clear");
+    if (event.key === "Enter") submitAnswer();
   });
 
-  function startStage(mode) {
-    state.mode = mode;
-    state.phase = 'first';
-    state.round = 0;
+  function startStage(stageKey) {
+    state.stage = stageKey;
+    state.phase = "first";
     state.attempts = [];
-    state.failedAttempts = [];
-    beginRound(generateUniqueProblems(mode, 5));
+    beginRound(STAGES[stageKey].createBatch());
   }
-  function restartCurrentStage() {
-    closeCelebration();
-    startStage(state.mode);
-  }
-  function goHome() {
-    closeCelebration();
-    state.mode = null;
-    practice.classList.remove('active');
-    result.classList.remove('show');
-    welcome.classList.remove('hidden');
-    $('homeBtn').classList.remove('show');
-  }
+
   function beginRound(problems) {
-    state.round += 1;
     state.batch = problems;
     state.index = 0;
-    welcome.classList.add('hidden');
-    result.classList.remove('show');
-    practice.classList.add('active');
-    $('homeBtn').classList.add('show');
-    $('stagePill').textContent = STAGES[state.mode].label;
-    $('questionTotal').textContent = state.batch.length;
-    showCurrentProblem();
+    welcome.classList.add("hidden");
+    results.classList.remove("show");
+    practice.classList.add("active");
+    el("homeButton").classList.add("show");
+    el("stagePill").textContent = STAGES[state.stage].label;
+    el("questionTotal").textContent = String(problems.length);
+    showProblem();
   }
-  function showCurrentProblem() {
-    state.input = '';
-    state.locked = false;
+
+  function showProblem() {
     const problem = state.batch[state.index];
-    $('questionNo').textContent = state.index + 1;
-    $('prompt').textContent = state.phase === 'first' ? '答えを入力しよう' : 'もう一度チャレンジ！';
-    formula.innerHTML = problem.expression + ' = ?';
-    typed.textContent = '';
-    answerBox.className = 'answer-box empty';
-    flash.className = 'flash';
-    flash.textContent = '.';
-    enableKeys(true);
+    state.input = "";
+    state.locked = false;
+    el("questionNumber").textContent = String(state.index + 1);
+    el("prompt").textContent = state.phase === "first" ? "答えを入力しよう" : "もう一度チャレンジ！";
+    formula.innerHTML = problem.html + " = ?";
+    typed.textContent = "";
+    answerBox.className = "answer empty";
+    flash.className = "flash";
+    flash.textContent = ".";
+    setKeysEnabled(true);
   }
+
   function pressKey(key) {
     if (state.locked) return;
     if (/^[0-9]$/.test(key)) {
-      const digits = state.input.replace('-', '');
+      const digits = state.input.replace("-", "");
       if (digits.length >= 5) return;
-      if (state.input === '0') state.input = key;
-      else if (state.input === '-0') state.input = '-' + key;
+      if (state.input === "0") state.input = key;
+      else if (state.input === "-0") state.input = "-" + key;
       else state.input += key;
-    } else if (key === 'sign') {
-      state.input = state.input.startsWith('-') ? state.input.slice(1) : '-' + state.input;
-    } else if (key === 'back') {
+    } else if (key === "sign") {
+      state.input = state.input.startsWith("-") ? state.input.slice(1) : "-" + state.input;
+    } else if (key === "back") {
       state.input = state.input.slice(0, -1);
-    } else if (key === 'clear') {
-      state.input = '';
+    } else if (key === "clear") {
+      state.input = "";
     }
     renderInput();
   }
+
   function renderInput() {
-    typed.textContent = displayNumberString(state.input);
-    answerBox.className = 'answer-box' + ((state.input === '' || state.input === '-') ? ' empty' : '');
+    typed.textContent = formatInput(state.input);
+    answerBox.className = "answer" + ((state.input === "" || state.input === "-") ? " empty" : "");
   }
+
   function submitAnswer() {
-    if (state.locked || state.input === '' || state.input === '-') return;
+    if (state.locked || state.input === "" || state.input === "-") return;
     const problem = state.batch[state.index];
-    const numericInput = Number(state.input);
-    const correct = numericInput === problem.answer;
-    const attempt = {
-      timestamp: new Date().toISOString(),
-      stage: state.mode,
-      stageLabel: STAGES[state.mode].label,
-      round: state.round,
-      phase: state.phase,
-      problem: problem,
-      input: numericInput,
-      answer: problem.answer,
-      correct: correct,
-      problemType: problem.problemType
-    };
-    state.attempts.push(attempt);
+    const submitted = Number(state.input);
+    const correct = submitted === problem.answer;
     state.locked = true;
-    enableKeys(false);
-    answerBox.className = 'answer-box ' + (correct ? 'correct' : 'checked');
+    setKeysEnabled(false);
+
+    state.attempts.push({
+      recordedAt: new Date().toISOString(),
+      stage: state.stage,
+      stageLabel: STAGES[state.stage].label,
+      phase: state.phase,
+      questionNo: state.index + 1,
+      problemType: problem.type,
+      expression: problem.text,
+      input: submitted,
+      correctAnswer: problem.answer,
+      correct: correct
+    });
+
     if (correct) {
-      flash.className = 'flash good';
-      flash.textContent = 'できた！ ◎';
+      answerBox.className = "answer good";
+      flash.className = "flash good";
+      flash.textContent = "できた！ ◎";
       playCorrectTone();
     } else {
-      flash.className = 'flash recorded';
-      flash.textContent = '確認しました';
+      answerBox.className = "answer recorded";
+      flash.className = "flash recorded";
+      flash.textContent = "確認しました";
     }
-    window.setTimeout(advanceAfterAttempt, 680);
+    window.setTimeout(nextAfterAnswer, 680);
   }
-  function advanceAfterAttempt() {
+
+  function nextAfterAnswer() {
     if (state.index < state.batch.length - 1) {
       state.index += 1;
-      showCurrentProblem();
+      showProblem();
       return;
     }
     finishRound();
   }
+
   function finishRound() {
-    const thisRound = state.attempts.filter(a => a.round === state.round);
-    const failed = thisRound.filter(a => !a.correct);
+    const latest = state.attempts.slice(-state.batch.length);
+    const failed = latest
+      .filter(attempt => !attempt.correct)
+      .map(attempt => ({
+        problem: state.batch[attempt.questionNo - 1],
+        attempt: attempt
+      }));
+
     if (failed.length === 0) {
-      const firstPass = state.phase === 'first';
-      celebrate(firstPass);
+      showCelebration(state.phase === "first");
       return;
     }
-    state.failedAttempts = failed;
-    renderReview(failed);
+    state.reviewProblems = failed.map(item => item.problem);
+    showReview(failed);
   }
-  function renderReview(failed) {
-    practice.classList.remove('active');
-    result.classList.add('show');
-    $('resultSub').textContent = state.phase === 'first' ? '5問の中から、もう一度取り組む問題です。' : 'あと少し。残った問題にもう一度取り組もう。';
-    $('remaining').textContent = 'クリアまで あと ' + failed.length + ' 問！';
-    const list = $('reviewList');
-    list.innerHTML = '';
-    failed.forEach(attempt => {
-      const item = document.createElement('div');
-      item.className = 'review-item';
-      item.innerHTML = '<div class="triangle">△</div>' +
-        '<div><div class="review-formula">' + attempt.problem.expression + '</div>' +
-        '<div class="review-answer">入力した答え：' + formatNumber(attempt.input) + '</div></div>';
-      list.appendChild(item);
+
+  function showReview(failed) {
+    practice.classList.remove("active");
+    results.classList.add("show");
+    el("resultSub").textContent = state.phase === "first"
+      ? "5問の中から、もう一度取り組む問題です。"
+      : "あと少し。残った問題にもう一度取り組もう。";
+    el("remaining").textContent = "クリアまで あと " + failed.length + " 問！";
+    const list = el("reviewList");
+    list.innerHTML = "";
+    failed.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "item";
+      row.innerHTML =
+        '<div class="triangle">△</div>' +
+        '<div><div class="item-formula">' + item.problem.html + '</div>' +
+        '<div class="item-answer">入力した答え：' + formatNumber(item.attempt.input) + '</div></div>';
+      list.appendChild(row);
     });
   }
-  function retryFailed() {
-    state.phase = 'retry';
-    beginRound(state.failedAttempts.map(a => a.problem));
+
+  function retryReviewProblems() {
+    state.phase = "retry";
+    beginRound(state.reviewProblems);
   }
-  function celebrate(firstPass) {
-    practice.classList.remove('active');
-    result.classList.remove('show');
-    $('celebrateTitle').textContent = firstPass ? '全問クリア！' : 'クリア！';
-    $('celebrateText').innerHTML = firstPass ? '5問ぜんぶできた！<br>すごい！！' : 'もう一度の問題も<br>できました！';
-    makeConfetti();
-    $('celebration').classList.add('show');
-    $('celebration').setAttribute('aria-hidden', 'false');
+
+  function restartCurrentStage() {
+    closeCelebration();
+    startStage(state.stage);
+  }
+
+  function goHome() {
+    closeCelebration();
+    state.stage = null;
+    practice.classList.remove("active");
+    results.classList.remove("show");
+    welcome.classList.remove("hidden");
+    el("homeButton").classList.remove("show");
+  }
+
+  function showCelebration(firstPass) {
+    practice.classList.remove("active");
+    results.classList.remove("show");
+    el("celebrateTitle").textContent = firstPass ? "全問クリア！" : "クリア！";
+    el("celebrateText").innerHTML = firstPass
+      ? "5問ぜんぶできた！<br>すごい！！"
+      : "もう一度の問題も<br>できました！";
+    createConfetti();
+    el("celebration").classList.add("show");
+    el("celebration").setAttribute("aria-hidden", "false");
     playCelebrationTone();
   }
+
   function closeCelebration() {
-    $('celebration').classList.remove('show');
-    $('celebration').setAttribute('aria-hidden', 'true');
+    el("celebration").classList.remove("show");
+    el("celebration").setAttribute("aria-hidden", "true");
   }
-  function makeConfetti() {
-    const colors = ['#18a487', '#ffcb48', '#ee7348', '#5279c7', '#ed71a5'];
-    const area = $('confetti');
-    area.innerHTML = '';
-    for (let i = 0; i < 42; i++) {
-      const piece = document.createElement('i');
-      piece.style.left = Math.random() * 100 + '%';
-      piece.style.background = choose(colors);
-      piece.style.animationDelay = Math.random() * .5 + 's';
-      piece.style.transform = 'rotate(' + Math.random() * 180 + 'deg)';
-      area.appendChild(piece);
+
+  function setKeysEnabled(enabled) {
+    document.querySelectorAll(".calculator button").forEach(button => {
+      button.disabled = !enabled;
+    });
+  }
+
+  function uniqueBatch(generator, count) {
+    const problems = [];
+    const used = new Set();
+    while (problems.length < count) {
+      const problem = generator();
+      if (!used.has(problem.key)) {
+        used.add(problem.key);
+        problems.push(problem);
+      }
     }
+    return problems;
   }
-  function enableKeys(enabled) {
-    document.querySelectorAll('.calculator button').forEach(button => { button.disabled = !enabled; });
+
+  function makePositivePower() {
+    const [base, exponent] = choose([[2,2],[2,3],[2,4],[3,2],[3,3],[4,2],[4,3],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2]]);
+    return problem("positive-" + base + "-" + exponent, power(base, exponent), base ** exponent, "positive_power");
   }
-  function getAudioContext() {
-    if (!state.audioContext) state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    if (state.audioContext.state === 'suspended') state.audioContext.resume();
+
+  function makeNegativeParenPower() {
+    const [base, exponent] = choose([[1,2],[1,3],[2,2],[2,3],[3,2],[3,3],[4,2],[4,3],[5,2],[5,3]]);
+    return problem(
+      "negative-paren-" + base + "-" + exponent,
+      power("(−" + base + ")", exponent),
+      Math.pow(-base, exponent),
+      exponent % 2 === 0 ? "negative_parentheses_even" : "negative_parentheses_odd"
+    );
+  }
+
+  function makeComparisonPower() {
+    const base = choose([2,3,4,5,6]);
+    const parenthesized = Math.random() < .5;
+    const expression = parenthesized ? power("(−" + base + ")", 2) : "−" + power(base, 2);
+    return problem(
+      "comparison-" + base + "-" + parenthesized,
+      expression,
+      parenthesized ? base ** 2 : -(base ** 2),
+      parenthesized ? "comparison_parentheses" : "no_parentheses_negative"
+    );
+  }
+
+  function makeMixedBatch() {
+    const powerA = makeNegativeParenPowerForMixed();
+    const powerB = makeNoParenPowerForMixed();
+    let powerC;
+    do { powerC = makeNegativeParenPowerForMixed(); } while (powerC.key === powerA.key);
+    const addA = makePositiveMinusProblem();
+    const addB = makeNegativePlusProblem();
+    return shuffle([powerA, addA, powerB, addB, powerC]);
+  }
+
+  function makeNegativeParenPowerForMixed() {
+    const [base, exponent] = choose([[2,2],[2,3],[3,2],[3,3],[4,2],[4,3],[5,2]]);
+    return problem(
+      "mixed-paren-" + base + "-" + exponent,
+      power("(−" + base + ")", exponent),
+      Math.pow(-base, exponent),
+      exponent % 2 === 0 ? "mixed_negative_parentheses_even" : "mixed_negative_parentheses_odd"
+    );
+  }
+
+  function makeNoParenPowerForMixed() {
+    const base = choose([2,3,4,5,6]);
+    return problem(
+      "mixed-no-paren-" + base,
+      "−" + power(base, 2),
+      -(base ** 2),
+      "mixed_no_parentheses_negative"
+    );
+  }
+
+  function makePositiveMinusProblem() {
+    // お母様からの観察：「7から引いたり足したり」が苦手そう
+    // ステージ4では、加法減法の1問目を必ず「＋7 − □」にする
+    const first = 7;
+    const second = choose([11,12,13,14,15,16,17,18,19,21,22,23,24,25]);
+    return problem(
+      "mixed-add-plus7-minus-" + second,
+      "＋7 − " + second,
+      first - second,
+      "mixed_addition_plus7_minus"
+    );
+  }
+
+  function makeNegativePlusProblem() {
+    // ステージ4では、加法減法の2問目を必ず「−7 ＋ □」にする
+    const first = 7;
+    const second = choose([11,12,13,14,15,16,17,18,19,21,22,23,24,25]);
+    return problem(
+      "mixed-add-minus7-plus-" + second,
+      "−7 ＋ " + second,
+      -first + second,
+      "mixed_addition_minus7_plus"
+    );
+  }
+
+  function problem(key, expression, answer, type) {
+    return { key, html: expression, text: stripTags(expression), answer, type };
+  }
+
+  function power(base, exponent) {
+    return String(base) + "<sup>" + exponent + "</sup>";
+  }
+
+  function stripTags(html) {
+    return html.replace(/<sup>(\d+)<\/sup>/g, "^$1");
+  }
+
+  function choose(items) {
+    return items[Math.floor(Math.random() * items.length)];
+  }
+
+  function shuffle(items) {
+    const result = items.slice();
+    for (let i = result.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }
+
+  function formatNumber(number) {
+    return number < 0 ? "−" + Math.abs(number) : String(number);
+  }
+
+  function formatInput(value) {
+    return value.startsWith("-") ? "−" + value.slice(1) : value;
+  }
+
+  function getAudio() {
+    if (!state.audioContext) {
+      state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (state.audioContext.state === "suspended") state.audioContext.resume();
     return state.audioContext;
   }
-  function tone(frequency, start, length, volume) {
-    const ctx = getAudioContext();
-    const oscillator = ctx.createOscillator();
-    const gain = ctx.createGain();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(frequency, ctx.currentTime + start);
-    gain.gain.setValueAtTime(0, ctx.currentTime + start);
-    gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + start + .012);
-    gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + start + length);
-    oscillator.connect(gain).connect(ctx.destination);
-    oscillator.start(ctx.currentTime + start);
-    oscillator.stop(ctx.currentTime + start + length + .01);
+
+  function tone(frequency, start, duration, volume) {
+    const audio = getAudio();
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(frequency, audio.currentTime + start);
+    gain.gain.setValueAtTime(0, audio.currentTime + start);
+    gain.gain.linearRampToValueAtTime(volume, audio.currentTime + start + .012);
+    gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + start + duration);
+    oscillator.connect(gain).connect(audio.destination);
+    oscillator.start(audio.currentTime + start);
+    oscillator.stop(audio.currentTime + start + duration + .02);
   }
+
   function playCorrectTone() {
     tone(659.25, 0, .11, .045);
-    tone(987.77, .105, .19, .043);
+    tone(987.77, .105, .18, .043);
   }
+
   function playCelebrationTone() {
     tone(523.25, 0, .14, .05);
     tone(659.25, .13, .14, .05);
-    tone(783.99, .26, .17, .055);
-    tone(1046.5, .42, .34, .06);
+    tone(783.99, .26, .18, .055);
+    tone(1046.5, .43, .34, .06);
   }
-  function generateUniqueProblems(mode, count) {
-    const results = [];
-    const seen = new Set();
-    while (results.length < count) {
-      const problem = STAGES[mode].build();
-      if (!seen.has(problem.key)) {
-        seen.add(problem.key);
-        results.push(problem);
-      }
+
+  function createConfetti() {
+    const colors = ["#18a487","#ffcb48","#ee7348","#5279c7","#ed71a5"];
+    const space = el("confetti");
+    space.innerHTML = "";
+    for (let index = 0; index < 42; index += 1) {
+      const piece = document.createElement("i");
+      piece.style.left = Math.random() * 100 + "%";
+      piece.style.background = choose(colors);
+      piece.style.animationDelay = Math.random() * .5 + "s";
+      piece.style.transform = "rotate(" + (Math.random() * 180) + "deg)";
+      space.appendChild(piece);
     }
-    return results;
   }
-  function makePositive() {
-    const pair = choose([[2,2],[2,3],[2,4],[3,2],[3,3],[4,2],[4,3],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2]]);
-    const base = pair[0], exponent = pair[1];
-    return {
-      key: 'p-' + base + '-' + exponent,
-      expression: powerHTML(String(base), exponent),
-      answer: base ** exponent,
-      problemType: 'positive_power'
-    };
-  }
-  function makeNegativeParen() {
-    const pair = choose([[1,2],[1,3],[2,2],[2,3],[3,2],[3,3],[4,2],[4,3],[5,2],[5,3]]);
-    const base = pair[0], exponent = pair[1];
-    return {
-      key: 'np-' + base + '-' + exponent,
-      expression: powerHTML('(−' + base + ')', exponent),
-      answer: Math.pow(-base, exponent),
-      problemType: exponent % 2 === 0 ? 'negative_parentheses_even' : 'negative_parentheses_odd'
-    };
-  }
-  function makeComparison() {
-    const base = choose([2,3,4,5]);
-    // カッコあり／なしで答えの違いが明確に現れる2乗のみを扱う
-    const exponent = 2;
-    const parenthesized = Math.random() < .5;
-    return {
-      key: 'cmp-' + base + '-' + exponent + '-' + parenthesized,
-      expression: parenthesized ? powerHTML('(−' + base + ')', exponent) : '−' + powerHTML(String(base), exponent),
-      answer: parenthesized ? Math.pow(-base, exponent) : -(base ** exponent),
-      problemType: parenthesized ? 'comparison_parentheses' : 'no_parentheses_negative'
-    };
-  }
-  function powerHTML(base, exponent) { return base + '<sup>' + exponent + '</sup>'; }
-  function choose(items) { return items[Math.floor(Math.random() * items.length)]; }
-  function formatNumber(number) { return number < 0 ? '−' + Math.abs(number) : String(number); }
-  function displayNumberString(text) { return text.startsWith('-') ? '−' + text.slice(1) : text; }
+
+  // Spreadsheet連携時には、この配列を送信対象にできます。
+  window.getRuijouMasterRecords = () => JSON.parse(JSON.stringify(state.attempts));
+  // ver0.4: ステージ4の加法減法2問を「＋7−□」「−7＋□」に固定
 })();
 </script>
 </body>
